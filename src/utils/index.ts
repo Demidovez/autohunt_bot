@@ -1,5 +1,6 @@
 import { User as UserTelegram } from "telegraf/typings/core/types/typegram";
 import { Markup, Scenes, Telegraf } from "telegraf";
+import { Advt } from "../types";
 
 export const requestAddUser = (
   bot: Telegraf<Scenes.SceneContext<Scenes.SceneSessionData>>,
@@ -48,4 +49,17 @@ export const sendMessageToAdmin = (
   } catch {
     console.log("ERROR ADD USER!");
   }
+};
+
+export const generateMessageOfAdvt = (advt: Advt): string => {
+  return `
+*🚘 ${advt.brand} ${advt.model} ${advt.generation}*
+  
+💰 Цена: *${advt.price_byn} р.  | $${advt.price_usd}*
+📅 Год: *${advt.year}*
+🚩 Пробег: *${advt.kilometers} км*
+💡 Коробка: *${advt.gearbox}*
+📏 Объем дв.: *${advt.volume} л. (${advt.fuel})*
+🧭 Город: *${advt.city}*
+  `;
 };

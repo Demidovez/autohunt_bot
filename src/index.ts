@@ -2,8 +2,13 @@ import { Telegraf, Scenes, Markup } from "telegraf";
 import LocalSession from "telegraf-session-local";
 import mongoose from "mongoose";
 import { getAllUsersIds, saveUserToDB } from "./mongo/utils/db_utils";
-import { requestAddUser, sendMessageToAdmin } from "./utils";
+import {
+  generateMessageOfAdvt,
+  requestAddUser,
+  sendMessageToAdmin,
+} from "./utils";
 import express from "express";
+import { Advt } from "./types";
 
 const app = express();
 const port = process.env.PORT;
@@ -46,9 +51,28 @@ const stage = new Scenes.Stage<Scenes.SceneContext>([]);
 bot.use(stage.middleware());
 
 app.post("/notify", (req, res) => {
-  const advt = req.body;
+  const advt: Advt = req.body.advt;
 
-  console.log({ advt });
+  const messagePromise = generateMessageOfAdvt(advt);
+  const usersIdsPromise = getAllUsersIds();
+
+  Promise.all([messagePromise, usersIdsPromise]).then(([message, usersIds]) => {
+    usersIds.map((userId) => {
+      bot.telegram.sendPhoto(userId, advt.images[0], {
+        parse_mode: "Markdown",
+        caption: message,
+        reply_markup: Markup.inlineKeyboard([
+          [
+            Markup.button.url(`Подробнее`, `https://${advt.site}${advt.url}`),
+            Markup.button.url(
+              `Открыть на ${advt.site}`,
+              `https://${advt.site}${advt.url}`
+            ),
+          ],
+        ]).reply_markup,
+      });
+    });
+  });
 
   res.sendStatus(200);
 });
