@@ -1,0 +1,12 @@
+version: '3.9'
+services:
+  autohunt_bot:
+    build: .
+    restart: unless-stopped
+    image: autohunt_bot
+    container_name: autohunt_bot_co
+
+networks: 
+  default: 
+    external: true
+    name: autohunt_network 
